@@ -4,6 +4,7 @@ entity "Button" as button
 control "MQTT Server" as mqtt
 control "Clipping Service" as clipping
 control "Venue Service" as venue
+entity "Camera" as camera
 database "Local Storage Server" as localstore
 control "Video Processing Service" as postprocess
 database "Video Delivery Server" as s3
