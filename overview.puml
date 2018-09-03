@@ -7,8 +7,8 @@ control "Venue Service" as venue
 entity "Camera" as camera
 database "Local Storage Server" as localstorage
 control "Video Processing Service" as postprocess
-database "Video Delivery Server" as s3
 database "Sync Queue" as sync
+database "Video Delivery Server" as s3
 database "Database of videos" as db
 
 button -> mqtt : Button pressed (msg contains MAC address) message
