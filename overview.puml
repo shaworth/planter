@@ -1,3 +1,9 @@
 @startuml
-Alice -> Bob: Hello
+entity "Button" as button
+database "Video Delivery Server" as s3
+control "MQTT Server" as mqtt
+entity "Post Processing Server" as relay
+control "Clipping Service" as clipping
+button -> mqtt : Button pressed
+mqtt -> clipping : Start clip
 @enduml
