@@ -1,9 +1,25 @@
 @startuml
+
 entity "Button" as button
 database "Video Delivery Server" as s3
 control "MQTT Server" as mqtt
-entity "Post Processing Server" as relay
+entity "Local Storage Server" as localstore
 control "Clipping Service" as clipping
-button -> mqtt : Button pressed
-mqtt -> clipping : Start clip
+control "Venue Service" as venue
+
+button -> mqtt : Button pressed (msg contains MAC address) message
+mqtt -> clipping : Relay message
+clipping -> venue : Request camera(s) for venue
+venue --> clipping : Return camera(s)
+loop for each camera
+    alt not recording this camera
+        loop for clip length
+            clipping -> camera: Retrieve video feed
+        end
+    else recording underway
+        alt max recording length not reached
+            clipping -> clipping: extend the recording
+        end
+    end
+end
 @enduml
