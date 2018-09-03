@@ -7,8 +7,8 @@ control "Venue Service" as venue
 database "Local Storage Server" as localstore
 control "Video Processing Service" as postprocess
 database "Video Delivery Server" as s3
-database "Database of videos" as db
 database "Sync Queue" as sync
+database "Database of videos" as db
 
 button -> mqtt : Button pressed (msg contains MAC address) message
 mqtt -> clipping : Relay message
@@ -29,8 +29,10 @@ postprocess -> localstorage: Request video file
 postprocess <- localstorage: Return video file
 postprocess -> postprocess: Add pre-roll, overlay and post-roll
 postprocess -> localstorage: Save video to sync queue
+
+== Always running ==
 sync -> localstorage: Request next video file in queue
-localstorage -> sync: video file
+localstorage -> sync: Return video file
 sync -> s3: Send video file to distribution
 alt Success
     sync -> db: Add record to database
