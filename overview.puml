@@ -1,7 +1,3 @@
 @startuml
-database Video Delivery Server
-control MQTT Server
-entity Video Relay Server
-control Clipping Service
-
+Alice -> Bob: Hello
 @enduml
