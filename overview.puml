@@ -1,25 +1,42 @@
 @startuml
 
 entity "Button" as button
-database "Video Delivery Server" as s3
 control "MQTT Server" as mqtt
-entity "Local Storage Server" as localstore
 control "Clipping Service" as clipping
 control "Venue Service" as venue
+database "Local Storage Server" as localstore
+control "Video Processing Service" as postprocess
+database "Video Delivery Server" as s3
+database "Database of videos" as db
+database "Sync Queue" as sync
 
 button -> mqtt : Button pressed (msg contains MAC address) message
 mqtt -> clipping : Relay message
 clipping -> venue : Request camera(s) for venue
 venue --> clipping : Return camera(s)
 loop for each camera
-    alt not recording this camera
-        loop for clip length
-            clipping -> camera: Retrieve video feed
-        end
-    else recording underway
-        alt max recording length not reached
-            clipping -> clipping: extend the recording
-        end
+    loop for recording length
+        clipping -> camera: Request video
+        camera -> clipping: Return video
     end
 end
+
+== Recording length reached ==
+
+clipping -> localstorage: Save video
+clipping -> postprocess: Begin processing
+postprocess -> localstorage: Request video file
+postprocess <- localstorage: Return video file
+postprocess -> postprocess: Add pre-roll, overlay and post-roll
+postprocess -> localstorage: Save video to sync queue
+sync -> localstorage: Request next video file in queue
+localstorage -> sync: video file
+sync -> s3: Send video file to distribution
+alt Success
+    sync -> db: Add record to database
+    sync -> localstorage: Remove file
+else failure
+    sync -> localstorage: Move file to back of queue
+end
+
 @enduml
